@@ -1,0 +1,56 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Quota {
+  id              String          @id @default(cuid())
+  userId          String
+  name            String
+  target          Int
+  color           String          @default("#6366f1")
+  active          Boolean         @default(true)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  quotaActivities QuotaActivity[]
+
+  @@index([userId])
+}
+
+model Activity {
+  id              String          @id @default(cuid())
+  userId          String
+  name            String
+  weight          Int             @default(1)
+  active          Boolean         @default(true)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  quotaActivities QuotaActivity[]
+  logs            Log[]
+
+  @@index([userId])
+}
+
+model QuotaActivity {
+  quotaId    String
+  activityId String
+  quota      Quota    @relation(fields: [quotaId], references: [id], onDelete: Cascade)
+  activity   Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+
+  @@id([quotaId, activityId])
+}
+
+model Log {
+  id         String   @id @default(cuid())
+  userId     String
+  activityId String
+  date       DateTime @db.Date
+  createdAt  DateTime @default(now())
+  activity   Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+
+  @@index([userId, date])
+}
