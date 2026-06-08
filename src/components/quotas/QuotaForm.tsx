@@ -137,7 +137,10 @@ export default function QuotaForm({ open, onClose, activities, editing }: QuotaF
                 />
               </div>
 
-              <div className="flex flex-col max-h-44 overflow-y-auto overscroll-contain touch-pan-y rounded-md border divide-y">
+              <div
+                className="flex flex-col max-h-44 overflow-y-auto overscroll-contain touch-pan-y rounded-md border divide-y"
+                onTouchMove={(e) => e.stopPropagation()}
+              >
                 {filtered.length === 0 ? (
                   <p className="text-sm text-muted-foreground text-center py-4">
                     Sin resultados
