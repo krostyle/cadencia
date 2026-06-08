@@ -124,6 +124,7 @@ export default function ActivityList({ activities }: ActivityListProps) {
       )}
 
       <ActivityForm
+        key={editing?.id ?? "new"}
         open={formOpen}
         onClose={() => setFormOpen(false)}
         editing={editing}

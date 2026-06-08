@@ -132,6 +132,7 @@ export default function QuotaList({ quotas, activities }: QuotaListProps) {
       )}
 
       <QuotaForm
+        key={formEditing?.id ?? "new"}
         open={formOpen}
         onClose={() => setFormOpen(false)}
         activities={activities}
