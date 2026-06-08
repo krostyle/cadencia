@@ -30,9 +30,9 @@ interface ActivityFormProps {
 }
 
 const WEIGHT_OPTIONS = [
-  { value: "1", label: "Ligera (1)" },
-  { value: "2", label: "Media (2)" },
-  { value: "3", label: "Intensa (3)" },
+  { value: "1", label: "Liviana — suma 1 punto" },
+  { value: "2", label: "Media — suma 2 puntos" },
+  { value: "3", label: "Intensa — suma 3 puntos" },
 ];
 
 export default function ActivityForm({ open, onClose, editing }: ActivityFormProps) {
@@ -93,7 +93,7 @@ export default function ActivityForm({ open, onClose, editing }: ActivityFormPro
               </SelectContent>
             </Select>
             <p className="text-xs text-muted-foreground">
-              El peso determina cuánto suma esta actividad al progreso de una cuota.
+              Una cuota de 4 puntos puede cumplirse con 2 actividades medias, 4 livianas, o cualquier combinación.
             </p>
           </div>
         </div>

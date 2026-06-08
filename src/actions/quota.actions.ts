@@ -25,7 +25,7 @@ const QuotaSchema = z.object({
 
 export type QuotaInput = z.infer<typeof QuotaSchema>;
 
-export async function createQuota(input: QuotaInput) {
+export async function createQuota(input: QuotaInput): Promise<{ id: string }> {
   const userId = await getCurrentUserId();
   const data = QuotaSchema.parse(input);
 
@@ -33,7 +33,7 @@ export async function createQuota(input: QuotaInput) {
   const count = await prisma.quota.count({ where: { userId } });
   const color = QUOTA_COLORS[count % QUOTA_COLORS.length];
 
-  await prisma.quota.create({
+  const quota = await prisma.quota.create({
     data: {
       userId,
       name: data.name,
@@ -44,6 +44,26 @@ export async function createQuota(input: QuotaInput) {
       },
     },
   });
+  revalidatePath("/quotas");
+  revalidatePath("/dashboard");
+  return { id: quota.id };
+}
+
+/** Reemplaza las actividades vinculadas a una cuota. Usado en el onboarding. */
+export async function setQuotaActivities(quotaId: string, activityIds: string[]) {
+  const userId = await getCurrentUserId();
+  const existing = await prisma.quota.findFirst({ where: { id: quotaId, userId } });
+  if (!existing) throw new Error("Not found");
+  await prisma.$transaction([
+    prisma.quotaActivity.deleteMany({ where: { quotaId } }),
+    ...(activityIds.length > 0
+      ? [
+          prisma.quotaActivity.createMany({
+            data: activityIds.map((activityId) => ({ quotaId, activityId })),
+          }),
+        ]
+      : []),
+  ]);
   revalidatePath("/quotas");
   revalidatePath("/dashboard");
 }

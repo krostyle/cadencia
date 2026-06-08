@@ -16,7 +16,7 @@ export default function QuotaCard({ name, color, progress, target }: QuotaCardPr
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span
-            className="inline-block w-3 h-3 rounded-full flex-shrink-0"
+            className="inline-block w-3 h-3 rounded-full shrink-0"
             style={{ backgroundColor: color }}
           />
           <span className="font-medium">{name}</span>

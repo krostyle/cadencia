@@ -15,9 +15,9 @@ type Activity = {
 };
 
 const WEIGHT_LABELS: Record<number, string> = {
-  1: "Ligera",
-  2: "Media",
-  3: "Intensa",
+  1: "Liviana · 1 punto",
+  2: "Media · 2 puntos",
+  3: "Intensa · 3 puntos",
 };
 
 export default function LogFlow({ activities }: { activities: Activity[] }) {

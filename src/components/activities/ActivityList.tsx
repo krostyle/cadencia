@@ -11,9 +11,9 @@ import ActivityForm from "./ActivityForm";
 type Activity = { id: string; name: string; weight: number; active: boolean };
 
 const WEIGHT_LABELS: Record<number, string> = {
-  1: "Ligera",
-  2: "Media",
-  3: "Intensa",
+  1: "Liviana · suma 1 punto",
+  2: "Media · suma 2 puntos",
+  3: "Intensa · suma 3 puntos",
 };
 
 interface ActivityListProps {
@@ -148,7 +148,7 @@ function ActivityRow({
           {WEIGHT_LABELS[activity.weight] ?? `Peso ${activity.weight}`}
         </p>
       </div>
-      <div className="flex items-center gap-1 flex-shrink-0">
+      <div className="flex items-center gap-1 shrink-0">
         <Button size="icon" variant="ghost" className="h-8 w-8" onClick={onEdit} disabled={isPending}>
           <Pencil size={14} />
         </Button>

@@ -93,6 +93,9 @@ export default function QuotaForm({ open, onClose, activities, editing }: QuotaF
               value={target}
               onChange={(e) => setTarget(e.target.value)}
             />
+            <p className="text-xs text-muted-foreground">
+              Los puntos se acumulan sumando el peso de cada actividad que registres. Empieza conservador y ajusta.
+            </p>
           </div>
           {activities.length > 0 && (
             <div className="flex flex-col gap-1.5">

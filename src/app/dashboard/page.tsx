@@ -6,7 +6,6 @@ import {
   computeQuotaProgress,
   buildPastWeekBounds,
   isWeekComplete,
-  computeStreakFromWeeks,
   type QuotaWithActivities,
   type LogWithActivity,
 } from "@/lib/week";
@@ -61,12 +60,15 @@ export default async function DashboardPage() {
       />
       <div className="flex flex-col gap-3 mt-2">
         {quotas.length === 0 ? (
-          <p className="text-muted-foreground text-sm py-8 text-center">
-            Aún no tienes cuotas activas.{" "}
-            <a href="/quotas" className="text-primary underline">
-              Crear una cuota
+          <div className="rounded-2xl border bg-card p-6 text-center flex flex-col gap-2">
+            <p className="font-medium text-sm">Sin cuotas activas</p>
+            <p className="text-muted-foreground text-xs leading-relaxed">
+              Una cuota es el hábito que quieres sostener semana a semana. Cuando crees una y le vincules actividades, aparecerá aquí con su progreso.
+            </p>
+            <a href="/quotas" className="text-primary text-sm underline mt-1 inline-block">
+              Crear mi primera cuota →
             </a>
-          </p>
+          </div>
         ) : (
           quotas.map((quota) => {
             const progress = computeQuotaProgress(

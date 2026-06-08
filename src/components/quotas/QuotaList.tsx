@@ -148,7 +148,7 @@ function QuotaRow({
   return (
     <div className="rounded-2xl border bg-card p-4 flex items-start gap-3">
       <span
-        className="mt-1 w-3 h-3 rounded-full flex-shrink-0"
+        className="mt-1 w-3 h-3 rounded-full shrink-0"
         style={{ backgroundColor: quota.color }}
       />
       <div className="flex-1 min-w-0">
@@ -165,7 +165,7 @@ function QuotaRow({
           </p>
         )}
       </div>
-      <div className="flex items-center gap-1 flex-shrink-0">
+      <div className="flex items-center gap-1 shrink-0">
         <Button size="icon" variant="ghost" className="h-8 w-8" onClick={onEdit} disabled={isPending}>
           <Pencil size={14} />
         </Button>
