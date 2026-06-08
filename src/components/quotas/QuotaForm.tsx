@@ -14,13 +14,14 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 
-const COLORS = [
-  "#6366f1", "#f43f5e", "#0ea5e9", "#10b981",
-  "#f59e0b", "#8b5cf6", "#ec4899", "#14b8a6",
-];
-
 type Activity = { id: string; name: string };
-type Quota = { id: string; name: string; target: number; color: string; quotaActivities: { activityId: string }[] };
+type Quota = {
+  id: string;
+  name: string;
+  target: number;
+  color: string;
+  quotaActivities: { activityId: string }[];
+};
 
 interface QuotaFormProps {
   open: boolean;
@@ -32,7 +33,6 @@ interface QuotaFormProps {
 export default function QuotaForm({ open, onClose, activities, editing }: QuotaFormProps) {
   const [name, setName] = useState(editing?.name ?? "");
   const [target, setTarget] = useState(String(editing?.target ?? "4"));
-  const [color, setColor] = useState(editing?.color ?? COLORS[0]);
   const [activityIds, setActivityIds] = useState<string[]>(
     editing?.quotaActivities.map((qa) => qa.activityId) ?? []
   );
@@ -50,7 +50,7 @@ export default function QuotaForm({ open, onClose, activities, editing }: QuotaF
       toast.error("Nombre y objetivo son requeridos");
       return;
     }
-    const input: QuotaInput = { name: name.trim(), target: t, color, activityIds };
+    const input: QuotaInput = { name: name.trim(), target: t, activityIds };
     startTransition(async () => {
       try {
         if (editing) {
@@ -93,20 +93,6 @@ export default function QuotaForm({ open, onClose, activities, editing }: QuotaF
               value={target}
               onChange={(e) => setTarget(e.target.value)}
             />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <Label>Color</Label>
-            <div className="flex gap-2 flex-wrap">
-              {COLORS.map((c) => (
-                <button
-                  key={c}
-                  onClick={() => setColor(c)}
-                  className={`w-7 h-7 rounded-full transition-transform ${color === c ? "scale-125 ring-2 ring-offset-2 ring-foreground" : ""}`}
-                  style={{ backgroundColor: c }}
-                  aria-label={c}
-                />
-              ))}
-            </div>
           </div>
           {activities.length > 0 && (
             <div className="flex flex-col gap-1.5">

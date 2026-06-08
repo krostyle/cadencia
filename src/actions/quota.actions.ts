@@ -5,10 +5,21 @@ import { getCurrentUserId } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
+// Paleta curada — se asigna cíclicamente al crear una cuota
+const QUOTA_COLORS = [
+  "#7c6af0", // índigo violeta
+  "#f06292", // rosa
+  "#26a69a", // teal
+  "#66bb6a", // verde sage
+  "#ffa726", // ámbar
+  "#ab47bc", // violeta
+  "#29b6f6", // azul cielo
+  "#ff7043", // terracota
+];
+
 const QuotaSchema = z.object({
   name: z.string().min(1).max(50),
   target: z.number().int().min(1).max(999),
-  color: z.string().regex(/^#[0-9a-fA-F]{6}$/),
   activityIds: z.array(z.string()).default([]),
 });
 
@@ -17,12 +28,17 @@ export type QuotaInput = z.infer<typeof QuotaSchema>;
 export async function createQuota(input: QuotaInput) {
   const userId = await getCurrentUserId();
   const data = QuotaSchema.parse(input);
+
+  // Asignar color automáticamente según cuántas cuotas ya existen
+  const count = await prisma.quota.count({ where: { userId } });
+  const color = QUOTA_COLORS[count % QUOTA_COLORS.length];
+
   await prisma.quota.create({
     data: {
       userId,
       name: data.name,
       target: data.target,
-      color: data.color,
+      color,
       quotaActivities: {
         create: data.activityIds.map((id) => ({ activityId: id })),
       },
@@ -44,7 +60,7 @@ export async function updateQuota(id: string, input: QuotaInput) {
       data: {
         name: data.name,
         target: data.target,
-        color: data.color,
+        // El color no cambia al editar — se mantiene el asignado al crear
         quotaActivities: {
           create: data.activityIds.map((aid) => ({ activityId: aid })),
         },

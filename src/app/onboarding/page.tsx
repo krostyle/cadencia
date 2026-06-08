@@ -9,16 +9,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-const COLORS = [
-  "#6366f1", "#f43f5e", "#0ea5e9", "#10b981",
-  "#f59e0b", "#8b5cf6", "#ec4899", "#14b8a6",
-];
-
 export default function OnboardingPage() {
   const router = useRouter();
   const [name, setName] = useState("");
   const [target, setTarget] = useState("4");
-  const [color, setColor] = useState(COLORS[0]);
   const [isPending, startTransition] = useTransition();
 
   function handleSubmit() {
@@ -29,7 +23,7 @@ export default function OnboardingPage() {
     }
     startTransition(async () => {
       try {
-        await createQuota({ name: name.trim(), target: t, color, activityIds: [] });
+        await createQuota({ name: name.trim(), target: t, activityIds: [] });
         await seedDefaultActivities();
         toast.success("¡Todo listo! Ya puedes empezar.");
         router.push("/activities");
@@ -74,21 +68,6 @@ export default function OnboardingPage() {
             <p className="text-xs text-muted-foreground">
               Las actividades tienen peso 1–3. Pon cuántos puntos quieres acumular por semana.
             </p>
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <Label>Color</Label>
-            <div className="flex gap-2 flex-wrap">
-              {COLORS.map((c) => (
-                <button
-                  key={c}
-                  onClick={() => setColor(c)}
-                  className={`w-8 h-8 rounded-full transition-transform ${color === c ? "scale-125 ring-2 ring-offset-2 ring-foreground" : ""}`}
-                  style={{ backgroundColor: c }}
-                  aria-label={c}
-                />
-              ))}
-            </div>
           </div>
 
           <Button size="lg" className="w-full mt-2" onClick={handleSubmit} disabled={isPending}>
