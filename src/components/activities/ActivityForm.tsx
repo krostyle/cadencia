@@ -13,14 +13,6 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-
 type Activity = { id: string; name: string; weight: number };
 
 interface ActivityFormProps {
@@ -30,9 +22,9 @@ interface ActivityFormProps {
 }
 
 const WEIGHT_OPTIONS = [
-  { value: "1", label: "Liviana — suma 1 punto" },
-  { value: "2", label: "Media — suma 2 puntos" },
-  { value: "3", label: "Intensa — suma 3 puntos" },
+  { value: "1", label: "Liviana", points: "1 punto" },
+  { value: "2", label: "Media", points: "2 puntos" },
+  { value: "3", label: "Intensa", points: "3 puntos" },
 ];
 
 export default function ActivityForm({ open, onClose, editing }: ActivityFormProps) {
@@ -79,21 +71,28 @@ export default function ActivityForm({ open, onClose, editing }: ActivityFormPro
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="activity-weight">Peso / intensidad</Label>
-            <Select value={weight} onValueChange={(v) => v !== null && setWeight(v)}>
-              <SelectTrigger id="activity-weight">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {WEIGHT_OPTIONS.map((o) => (
-                  <SelectItem key={o.value} value={o.value}>
+            <Label>Peso / intensidad</Label>
+            <div className="grid grid-cols-3 gap-2">
+              {WEIGHT_OPTIONS.map((o) => (
+                <button
+                  key={o.value}
+                  type="button"
+                  onClick={() => setWeight(o.value)}
+                  className={`rounded-xl border p-3 text-center transition-colors flex flex-col items-center gap-1 ${
+                    weight === o.value
+                      ? "border-primary bg-primary/5"
+                      : "border-border bg-card hover:border-primary/40"
+                  }`}
+                >
+                  <span className={`font-medium text-sm ${weight === o.value ? "text-primary" : ""}`}>
                     {o.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+                  </span>
+                  <span className="text-xs text-muted-foreground">{o.points}</span>
+                </button>
+              ))}
+            </div>
             <p className="text-xs text-muted-foreground">
-              Una cuota de 4 puntos puede cumplirse con 2 actividades medias, 4 livianas, o cualquier combinación.
+              Una cuota de 4 pts: 2 actividades medias, 4 livianas, o cualquier combinación.
             </p>
           </div>
         </div>
