@@ -2,10 +2,12 @@
 
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
+import { X, Search, Check } from "lucide-react";
 import { createQuota, updateQuota, type QuotaInput } from "@/actions/quota.actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
@@ -13,6 +15,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { cn } from "@/lib/utils";
 
 type Activity = { id: string; name: string };
 type Quota = {
@@ -36,6 +39,7 @@ export default function QuotaForm({ open, onClose, activities, editing }: QuotaF
   const [activityIds, setActivityIds] = useState<string[]>(
     editing?.quotaActivities.map((qa) => qa.activityId) ?? []
   );
+  const [search, setSearch] = useState("");
   const [isPending, startTransition] = useTransition();
 
   function toggleActivity(id: string) {
@@ -43,6 +47,12 @@ export default function QuotaForm({ open, onClose, activities, editing }: QuotaF
       prev.includes(id) ? prev.filter((a) => a !== id) : [...prev, id]
     );
   }
+
+  const filtered = activities.filter((a) =>
+    a.name.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const selectedActivities = activities.filter((a) => activityIds.includes(a.id));
 
   function handleSubmit() {
     const t = parseInt(target, 10);
@@ -98,20 +108,59 @@ export default function QuotaForm({ open, onClose, activities, editing }: QuotaF
             </p>
           </div>
           {activities.length > 0 && (
-            <div className="flex flex-col gap-1.5">
+            <div className="flex flex-col gap-2">
               <Label>Actividades que suman a esta cuota</Label>
-              <div className="flex flex-col gap-1 max-h-40 overflow-y-auto">
-                {activities.map((a) => (
-                  <label key={a.id} className="flex items-center gap-2 cursor-pointer text-sm">
-                    <input
-                      type="checkbox"
-                      checked={activityIds.includes(a.id)}
-                      onChange={() => toggleActivity(a.id)}
-                      className="rounded"
-                    />
-                    {a.name}
-                  </label>
-                ))}
+
+              {selectedActivities.length > 0 && (
+                <div className="flex flex-wrap gap-1.5">
+                  {selectedActivities.map((a) => (
+                    <Badge
+                      key={a.id}
+                      variant="secondary"
+                      className="cursor-pointer gap-1 pr-1"
+                      onClick={() => toggleActivity(a.id)}
+                    >
+                      {a.name}
+                      <X className="size-3 opacity-60" />
+                    </Badge>
+                  ))}
+                </div>
+              )}
+
+              <div className="relative">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground pointer-events-none" />
+                <Input
+                  placeholder="Buscar actividad..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="pl-8 h-8 text-sm"
+                />
+              </div>
+
+              <div className="flex flex-col max-h-44 overflow-y-auto rounded-md border divide-y">
+                {filtered.length === 0 ? (
+                  <p className="text-sm text-muted-foreground text-center py-4">
+                    Sin resultados
+                  </p>
+                ) : (
+                  filtered.map((a) => {
+                    const selected = activityIds.includes(a.id);
+                    return (
+                      <button
+                        key={a.id}
+                        type="button"
+                        onClick={() => toggleActivity(a.id)}
+                        className={cn(
+                          "flex items-center justify-between px-3 py-2.5 text-sm text-left transition-colors",
+                          selected ? "bg-primary/10 text-primary font-medium" : "hover:bg-muted"
+                        )}
+                      >
+                        <span>{a.name}</span>
+                        {selected && <Check className="size-4 shrink-0" />}
+                      </button>
+                    );
+                  })
+                )}
               </div>
             </div>
           )}
