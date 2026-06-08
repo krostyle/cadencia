@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { archiveQuota, unarchiveQuota, deleteQuota } from "@/actions/quota.actions";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Pencil, Archive, ArchiveRestore, Trash2, Plus, ChevronDown } from "lucide-react";
 import QuotaForm from "./QuotaForm";
 
@@ -27,6 +28,8 @@ export default function QuotaList({ quotas, activities }: QuotaListProps) {
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<Quota | null>(null);
   const [showArchived, setShowArchived] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
   const active = quotas.filter((q) => q.active);
@@ -56,13 +59,22 @@ export default function QuotaList({ quotas, activities }: QuotaListProps) {
     });
   }
 
-  function handleDelete(id: string) {
-    if (!confirm("¿Eliminar esta cuota? No se puede deshacer.")) return;
+  function requestDelete(id: string) {
+    setPendingDeleteId(id);
+    setConfirmOpen(true);
+  }
+
+  function handleConfirmDelete() {
+    if (!pendingDeleteId) return;
+    const id = pendingDeleteId;
+    setPendingDeleteId(null);
     startTransition(async () => {
       await deleteQuota(id);
       toast.success("Cuota eliminada");
     });
   }
+
+  const pendingName = quotas.find((q) => q.id === pendingDeleteId)?.name ?? "";
 
   const formEditing = editing ? {
     ...editing,
@@ -88,7 +100,7 @@ export default function QuotaList({ quotas, activities }: QuotaListProps) {
           quota={q}
           onEdit={() => openEdit(q)}
           onArchive={() => handleArchive(q.id)}
-          onDelete={() => handleDelete(q.id)}
+          onDelete={() => requestDelete(q.id)}
           isPending={isPending}
         />
       ))}
@@ -112,7 +124,7 @@ export default function QuotaList({ quotas, activities }: QuotaListProps) {
                 quota={q}
                 onEdit={() => openEdit(q)}
                 onUnarchive={() => handleUnarchive(q.id)}
-                onDelete={() => handleDelete(q.id)}
+                onDelete={() => requestDelete(q.id)}
                 isPending={isPending}
               />
             ))}
@@ -124,6 +136,18 @@ export default function QuotaList({ quotas, activities }: QuotaListProps) {
         onClose={() => setFormOpen(false)}
         activities={activities}
         editing={formEditing}
+      />
+
+      <ConfirmDialog
+        open={confirmOpen}
+        onOpenChange={(v) => {
+          setConfirmOpen(v);
+          if (!v) setPendingDeleteId(null);
+        }}
+        title="Eliminar cuota"
+        description={`¿Eliminar "${pendingName}"? Se borrará permanentemente con todo su historial. Esta acción no se puede deshacer.`}
+        confirmLabel="Eliminar cuota"
+        onConfirm={handleConfirmDelete}
       />
     </div>
   );

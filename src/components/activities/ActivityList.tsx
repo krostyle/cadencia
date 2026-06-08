@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { archiveActivity, unarchiveActivity, deleteActivity } from "@/actions/activity.actions";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Pencil, Archive, ArchiveRestore, Trash2, Plus, ChevronDown } from "lucide-react";
 import ActivityForm from "./ActivityForm";
 
@@ -24,6 +25,8 @@ export default function ActivityList({ activities }: ActivityListProps) {
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<Activity | null>(null);
   const [showArchived, setShowArchived] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
   const active = activities.filter((a) => a.active);
@@ -53,13 +56,22 @@ export default function ActivityList({ activities }: ActivityListProps) {
     });
   }
 
-  function handleDelete(id: string) {
-    if (!confirm("¿Eliminar esta actividad? No se puede deshacer.")) return;
+  function requestDelete(id: string) {
+    setPendingDeleteId(id);
+    setConfirmOpen(true);
+  }
+
+  function handleConfirmDelete() {
+    if (!pendingDeleteId) return;
+    const id = pendingDeleteId;
+    setPendingDeleteId(null);
     startTransition(async () => {
       await deleteActivity(id);
       toast.success("Actividad eliminada");
     });
   }
+
+  const pendingName = activities.find((a) => a.id === pendingDeleteId)?.name ?? "";
 
   return (
     <div className="flex flex-col gap-3 pt-4">
@@ -80,7 +92,7 @@ export default function ActivityList({ activities }: ActivityListProps) {
           activity={a}
           onEdit={() => openEdit(a)}
           onArchive={() => handleArchive(a.id)}
-          onDelete={() => handleDelete(a.id)}
+          onDelete={() => requestDelete(a.id)}
           isPending={isPending}
         />
       ))}
@@ -104,7 +116,7 @@ export default function ActivityList({ activities }: ActivityListProps) {
                 activity={a}
                 onEdit={() => openEdit(a)}
                 onUnarchive={() => handleUnarchive(a.id)}
-                onDelete={() => handleDelete(a.id)}
+                onDelete={() => requestDelete(a.id)}
                 isPending={isPending}
               />
             ))}
@@ -115,6 +127,18 @@ export default function ActivityList({ activities }: ActivityListProps) {
         open={formOpen}
         onClose={() => setFormOpen(false)}
         editing={editing}
+      />
+
+      <ConfirmDialog
+        open={confirmOpen}
+        onOpenChange={(v) => {
+          setConfirmOpen(v);
+          if (!v) setPendingDeleteId(null);
+        }}
+        title="Eliminar actividad"
+        description={`¿Eliminar "${pendingName}"? Se borrará permanentemente junto con todos sus registros. Esta acción no se puede deshacer.`}
+        confirmLabel="Eliminar actividad"
+        onConfirm={handleConfirmDelete}
       />
     </div>
   );
