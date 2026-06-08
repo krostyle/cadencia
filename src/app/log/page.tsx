@@ -5,14 +5,17 @@ import LogFlow from "@/components/log/LogFlow";
 
 export default async function LogPage() {
   const userId = await getCurrentUserId();
-  const activities = await prisma.activity.findMany({
-    where: { userId, active: true },
-    orderBy: { name: "asc" },
-  });
+  const [activities, logCount] = await Promise.all([
+    prisma.activity.findMany({
+      where: { userId, active: true },
+      orderBy: { name: "asc" },
+    }),
+    prisma.log.count({ where: { userId } }),
+  ]);
 
   return (
     <AppShell title="Registrar">
-      <LogFlow activities={activities} />
+      <LogFlow key={logCount} activities={activities} />
     </AppShell>
   );
 }
