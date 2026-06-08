@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { format } from "date-fns";
+import { es } from "react-day-picker/locale";
 import { toast } from "sonner";
 import { createLog } from "@/actions/log.actions";
-import { getTodayString } from "@/lib/week";
+import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ChevronLeft, CheckCircle2 } from "lucide-react";
@@ -23,24 +25,25 @@ const WEIGHT_LABELS: Record<number, string> = {
 export default function LogFlow({ activities }: { activities: Activity[] }) {
   const [step, setStep] = useState<"pick" | "confirm">("pick");
   const [selected, setSelected] = useState<Activity | null>(null);
-  const [date, setDate] = useState(getTodayString());
+  const [date, setDate] = useState<Date>(new Date());
   const [isPending, startTransition] = useTransition();
 
   function pickActivity(activity: Activity) {
     setSelected(activity);
-    setDate(getTodayString());
+    setDate(new Date());
     setStep("confirm");
   }
 
   function handleConfirm() {
     if (!selected) return;
+    const dateStr = format(date, "yyyy-MM-dd");
     startTransition(async () => {
       try {
-        await createLog({ activityId: selected.id, date });
+        await createLog({ activityId: selected.id, date: dateStr });
         toast.success(`¡Listo! "${selected.name}" registrada`);
         setStep("pick");
         setSelected(null);
-        setDate(getTodayString());
+        setDate(new Date());
       } catch {
         toast.error("Error al registrar. Intenta de nuevo.");
       }
@@ -67,18 +70,18 @@ export default function LogFlow({ activities }: { activities: Activity[] }) {
             </Badge>
           </div>
 
-          <div>
-            <label htmlFor="log-date" className="text-xs text-muted-foreground uppercase tracking-wider mb-1 block">
-              Fecha
-            </label>
-            <input
-              id="log-date"
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              max={getTodayString()}
-              className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-            />
+          <div className="flex flex-col gap-2">
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Fecha</p>
+            <div className="flex justify-center">
+              <Calendar
+                mode="single"
+                selected={date}
+                onSelect={(d) => d && setDate(d)}
+                disabled={{ after: new Date() }}
+                defaultMonth={date}
+                locale={es}
+              />
+            </div>
           </div>
 
           <Button
