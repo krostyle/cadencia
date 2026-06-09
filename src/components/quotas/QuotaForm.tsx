@@ -79,11 +79,12 @@ export default function QuotaForm({ open, onClose, activities, editing }: QuotaF
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent>
+      <DialogContent className="flex flex-col max-h-[85dvh] overflow-hidden">
         <DialogHeader>
           <DialogTitle>{editing ? "Editar cuota" : "Nueva cuota"}</DialogTitle>
         </DialogHeader>
-        <div className="flex flex-col gap-4 py-2">
+
+        <div className="flex-1 overflow-y-auto overscroll-contain flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="quota-name">Nombre</Label>
             <Input
@@ -107,6 +108,7 @@ export default function QuotaForm({ open, onClose, activities, editing }: QuotaF
               Los puntos se acumulan sumando el peso de cada actividad que registres. Empieza conservador y ajusta.
             </p>
           </div>
+
           {activities.length > 0 && (
             <div className="flex flex-col gap-2">
               <Label>Actividades que suman a esta cuota</Label>
@@ -137,10 +139,7 @@ export default function QuotaForm({ open, onClose, activities, editing }: QuotaF
                 />
               </div>
 
-              <div
-                className="flex flex-col max-h-44 overflow-y-auto overscroll-contain touch-pan-y rounded-md border divide-y"
-                onTouchMove={(e) => e.stopPropagation()}
-              >
+              <div className="rounded-md border divide-y">
                 {filtered.length === 0 ? (
                   <p className="text-sm text-muted-foreground text-center py-4">
                     Sin resultados
@@ -154,7 +153,7 @@ export default function QuotaForm({ open, onClose, activities, editing }: QuotaF
                         type="button"
                         onClick={() => toggleActivity(a.id)}
                         className={cn(
-                          "flex items-center justify-between px-3 py-2.5 text-sm text-left transition-colors",
+                          "w-full flex items-center justify-between px-3 py-2.5 text-sm text-left transition-colors",
                           selected ? "bg-primary/10 text-primary font-medium" : "hover:bg-muted"
                         )}
                       >
@@ -168,6 +167,7 @@ export default function QuotaForm({ open, onClose, activities, editing }: QuotaF
             </div>
           )}
         </div>
+
         <DialogFooter>
           <Button variant="ghost" onClick={onClose}>Cancelar</Button>
           <Button onClick={handleSubmit} disabled={isPending}>
